@@ -3,12 +3,13 @@
 
 Welcome to the Movies Listing Android Application repository! This project serves as a demonstration of incorporating MultiModule architecture and clean architecture principles. The application also highlights best practices in Unit testing and the use of Jetpack Compose for UI development.
 
-# Project Overview
 
 # Features
-Login and Signup: Using compose
-Browse Movies: View a curated list of movies on the home screen.
-Search Functionality: Easily find movies with a built-in search feature.
+--Login and Signup: Using compose
+
+--Browse Movies: View a curated list of movies on the home screen.
+
+--Search Functionality: Easily find movies with a built-in search feature.
 
 
 # Clone the Repository
