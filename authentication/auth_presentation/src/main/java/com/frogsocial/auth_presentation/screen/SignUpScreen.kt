@@ -1,6 +1,9 @@
 package com.frogsocial.auth_presentation.screen
 
+import android.content.Context
+import androidx.biometric.BiometricPrompt
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +11,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -16,19 +21,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
 import com.frogsocial.auth_domain.model.User
+import com.frogsocial.auth_presentation.R
 import com.frogsocial.auth_presentation.SignUpViewModel
 import com.frogsocial.auth_presentation.components.CustomTextField
 import com.frogsocial.auth_presentation.components.SimpleDialog
@@ -39,6 +44,8 @@ fun SignUpScreen(viewModel: SignUpViewModel, navController: NavHostController) {
 
     val insertUsersDataStatus by viewModel.insertUsersDataStatus.collectAsState()
     val usersAuthStatus by viewModel.usersAuthStatus.collectAsState()
+    val biometricState by viewModel.biometricState
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -125,6 +132,18 @@ fun SignUpScreen(viewModel: SignUpViewModel, navController: NavHostController) {
                 .padding(16.dp),
             style = MaterialTheme.typography.titleMedium
         )
+
+        AnimatedVisibility(visible = viewModel.isExistingUser.value) {
+            Image(
+                painter = painterResource(R.drawable.fingerprint),
+                contentDescription = "Biometric Logo",
+                modifier = Modifier.size(128.dp)
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+                    .clickable {
+                        viewModel.authenticateUser()
+                    }// Adjust the size as needed
+            )
+        }
         if (viewModel.showDialog.value) {
             SimpleDialog(
                 message = viewModel.errorMessage.value,
@@ -152,11 +171,9 @@ fun SignUpScreen(viewModel: SignUpViewModel, navController: NavHostController) {
         when (usersAuthStatus) {
             is Resource.Success -> {
                 navController.navigate("home") {
-                    // Pop up to the root of the graph to clear everything
                     popUpTo(navController.graph.startDestinationId) {
                         inclusive = true
                     }
-                    // Avoid multiple copies of the same destination
                     launchSingleTop = true
                 }
 
@@ -167,4 +184,55 @@ fun SignUpScreen(viewModel: SignUpViewModel, navController: NavHostController) {
             }
 
             is Resource.Loading -> {}
-        }}}
+        }
+    }
+
+    LaunchedEffect(biometricState) {
+        when (biometricState) {
+            SignUpViewModel.BiometricState.Authenticating -> showBiometricPrompt(context, viewModel)
+            SignUpViewModel.BiometricState.Success -> {
+                navController.navigate("home") {
+                    popUpTo(navController.graph.startDestinationId) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
+            }
+            else -> {
+                // Show Toast message
+            }
+        }
+    }
+
+}
+
+fun showBiometricPrompt(context: Context, viewModel: SignUpViewModel) {
+    val executor = ContextCompat.getMainExecutor(context)
+    val biometricPrompt = BiometricPrompt(
+        context as FragmentActivity,
+        executor,
+        object : BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                super.onAuthenticationError(errorCode, errString)
+                viewModel.updateBiometricState(SignUpViewModel.BiometricState.Error)
+            }
+
+            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                super.onAuthenticationSucceeded(result)
+                viewModel.updateBiometricState(SignUpViewModel.BiometricState.Success)
+            }
+
+            override fun onAuthenticationFailed() {
+                super.onAuthenticationFailed()
+                viewModel.updateBiometricState(SignUpViewModel.BiometricState.Error)
+            }
+        })
+
+    val promptInfo = BiometricPrompt.PromptInfo.Builder()
+        .setTitle("Biometric Authentication")
+        .setDescription("Log in using your biometric credential")
+        .setNegativeButtonText("Use account password")
+        .build()
+
+    biometricPrompt.authenticate(promptInfo)
+}

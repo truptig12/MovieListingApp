@@ -55,4 +55,6 @@ dependencies {
     testImplementation(libs.mockito.core)
     androidTestImplementation(libs.mockito.android)
     testImplementation(libs.kotlinx.coroutines.test)
+
+    implementation (libs.androidx.biometric)
 }

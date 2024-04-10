@@ -4,8 +4,10 @@ import android.app.Application
 import androidx.room.Room
 import com.frogsocial.auth_data.local.UserDao
 import com.frogsocial.auth_data.local.UserDatabase
+import com.frogsocial.auth_data.repository.BiometricRepositoryImpl
 import com.frogsocial.auth_data.repository.UserRepositoryImpl
 import com.frogsocial.auth_domain.UserRepository
+import com.frogsocial.auth_domain.repository.BiometricRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,5 +33,10 @@ class UserModule {
     ): UserRepository {
         return UserRepositoryImpl(dao)
     }
+
+    @Provides
+    @Singleton
+    fun provideBiometricRepository(app: Application):BiometricRepository = BiometricRepositoryImpl(app)
+
 
 }

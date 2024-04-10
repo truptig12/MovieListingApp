@@ -1,9 +1,11 @@
 
 package com.frogsocial.auth_presentation
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.frogsocial.auth_domain.model.User
+import com.frogsocial.auth_domain.use_cases.BiometricAuthenticationUseCase
 import com.frogsocial.auth_domain.use_cases.UserUseCase
 import com.frogsocial.auth_presentation.screen.LoginSignupUIEvent
 import com.frogsocial.auth_presentation.screen.RegistrationUIState
@@ -18,7 +20,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SignUpViewModel @Inject constructor(private var usersUseCase: UserUseCase) : ViewModel() {
+class SignUpViewModel @Inject constructor(private var usersUseCase: UserUseCase, private val biometricUseCase: BiometricAuthenticationUseCase) : ViewModel() {
 
     var registrationUIState = mutableStateOf(RegistrationUIState())
 
@@ -159,6 +161,47 @@ class SignUpViewModel @Inject constructor(private var usersUseCase: UserUseCase)
                 _usersAuthStatus.value = Resource.Error(exception.message!!, null)
             }
         }
+    }
+
+    private val _biometricState = mutableStateOf<BiometricState>(BiometricState.Initial)
+    val biometricState: State<BiometricState> = _biometricState
+
+    fun authenticateUser() {
+        if (biometricUseCase.isBiometricAvailable()) {
+            _biometricState.value = BiometricState.Authenticating
+            // Trigger biometric prompt and update state based on result
+        } else {
+            _biometricState.value = BiometricState.Unavailable
+        }
+    }
+
+    fun updateBiometricState(biometricState: BiometricState){
+        when(biometricState){
+
+            BiometricState.Success -> {
+                _biometricState.value = BiometricState.Success
+            }
+
+            BiometricState.Authenticating ->{
+                _biometricState.value = BiometricState.Authenticating
+            }
+            BiometricState.Error -> {
+                _biometricState.value = BiometricState.Error
+            }
+            BiometricState.Initial -> {
+                _biometricState.value = BiometricState.Initial
+            }
+            BiometricState.Unavailable -> {
+                _biometricState.value = BiometricState.Unavailable
+            }
+        }
+    }
+    sealed class BiometricState {
+        object Initial : BiometricState()
+        object Authenticating : BiometricState()
+        object Success : BiometricState()
+        object Error : BiometricState()
+        object Unavailable : BiometricState()
     }
 
 }

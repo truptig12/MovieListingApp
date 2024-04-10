@@ -76,6 +76,7 @@ dependencies {
     testImplementation(libs.core.testing)
     testImplementation(libs.turbine)
 
+    implementation (libs.androidx.biometric)
 }
 
 
