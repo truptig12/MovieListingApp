@@ -15,7 +15,7 @@ class MovieRemoteDataSourceImpl @Inject constructor(
         input: String,
         pageNumber: Int
     ): SearchResultsDto<List<MovieDto>> {
-        val searchString = if(input.isEmpty()) "Love" else input
+        val searchString = if(input.isEmpty()) MoviesConstants.DEFAULT else input
         return api.getAllMovies(searchString, apiKey = MoviesConstants.MOVIE_API_KEY, page = pageNumber)
     }
 

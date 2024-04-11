@@ -2,6 +2,7 @@ package com.frogsocial.movie_presentation.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,12 +28,14 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import com.frogsocial.movie_domain.model.Movie
+import com.frogsocial.movie_presentation.R
 
 @Composable
 fun ItemMovie(
@@ -56,7 +59,7 @@ fun ItemMovie(
         val transition by animateFloatAsState(
             targetValue = if (painter.state is AsyncImagePainter.State.Success) 1f else 0f
         )
-        Column {
+        Column (modifier= Modifier.background(Color(0xFFF1F1F1))){
             Box(
                 modifier = Modifier
                     .height(150.dp)

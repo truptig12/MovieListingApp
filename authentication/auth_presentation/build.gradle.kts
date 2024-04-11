@@ -71,7 +71,8 @@ dependencies {
     testImplementation(libs.mockito.core)
     androidTestImplementation(libs.mockito.android)
     testImplementation(libs.kotlinx.coroutines.test)
-
+    testImplementation ("org.mockito:mockito-inline:3.8.0")
+    testImplementation ("org.mockito.kotlin:mockito-kotlin:3.2.0")
     testImplementation(libs.mockk)
     testImplementation(libs.core.testing)
     testImplementation(libs.turbine)

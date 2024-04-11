@@ -2,12 +2,16 @@ package com.frogsocial.movie_presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -68,15 +73,10 @@ fun HomeScreen(
                         .weight(1.0f),
                     textAlign = TextAlign.Center
                 )
-
-                Button(onClick = {
-                 //   viewModel.logout()
-
-                }) {
-                    Text("Log Out")
-                }
             }
-        }
+        },
+
+
     ) {
         Column {
             OutlinedTextField(
@@ -100,12 +100,11 @@ fun HomeScreen(
                     unfocusedIndicatorColor = Color.Gray.copy(alpha = 0.2f ) // Op
                 ),
             )
-            LazyColumn(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .background(Color(0xfff9f9f9))
-            ) {
-                item { Spacer(modifier = Modifier.padding(4.dp)) }
+            LazyVerticalGrid(
+                modifier = Modifier.fillMaxWidth(),
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(bottom = 75.dp)
+            )  {
                 items(moviePagingItems.itemCount) { index ->
                     ItemMovie(
                         itemEntity = moviePagingItems[index]!!,
@@ -117,14 +116,14 @@ fun HomeScreen(
                 moviePagingItems.apply {
                     when {
                         loadState.refresh is LoadState.Loading -> {
-                            item { PageLoader(modifier = Modifier.fillParentMaxSize()) }
+                            item { PageLoader(modifier = Modifier.fillMaxSize()) }
                         }
 
                         loadState.refresh is LoadState.Error -> {
                             val error = moviePagingItems.loadState.refresh as LoadState.Error
                             item {
                                 ErrorMessage(
-                                    modifier = Modifier.fillParentMaxSize(),
+                                    modifier = Modifier.fillMaxSize(),
                                     message = error.error.localizedMessage!!,
                                     onClickRetry = { retry() })
                             }
@@ -148,5 +147,14 @@ fun HomeScreen(
                 item { Spacer(modifier = Modifier.padding(4.dp)) }
             }
         }
+    }
+}
+
+fun navigate(navController: NavController, route: String) {
+    navController.navigate(route) {
+        popUpTo(navController.graph.startDestinationId) {
+            inclusive = true
+        }
+        launchSingleTop = true
     }
 }

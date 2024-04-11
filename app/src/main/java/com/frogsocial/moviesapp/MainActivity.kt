@@ -11,6 +11,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.frogsocial.auth_presentation.SignUpViewModel
+import com.frogsocial.auth_presentation.SignUpViewModelNew
+import com.frogsocial.auth_presentation.screen.SignInScreen
 import com.frogsocial.auth_presentation.screen.SignUpScreen
 import com.frogsocial.movie_presentation.HomeScreen
 import com.frogsocial.moviesapp.ui.theme.MoviesAppTheme
@@ -24,12 +26,12 @@ class MainActivity : FragmentActivity() {
         setContent {
             MoviesAppTheme {
                 val viewModel: com.frogsocial.movie_presentation.MovieViewModel = hiltViewModel()
-                 val viewModelSign: SignUpViewModel by viewModels()
+                 val viewModelSign: SignUpViewModelNew by viewModels()
 
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = "signup") {
                     composable("signup") {
-                        SignUpScreen(viewModelSign, navController)
+                        SignInScreen(viewModelSign, navController)
                     }
                     composable("home") {
                         HomeScreen(viewModel,navController)
